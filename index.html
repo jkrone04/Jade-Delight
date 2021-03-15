@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+</head>
+
+<body>
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form>
+
+<p>First Name: <input type="text"  name='fname' /></p>
+<p>Last Name*:  <input type="text"  name='lname' /></p>
+<p id="street"></p>
+<p id="city"></p>
+<p>Phone*: <input type="text"  name='phone' /></p>
+<p> 
+	<input type="radio"  name="p_or_d" value = "pickup" checked="checked"/>Pickup  
+	<input type="radio"  name='p_or_d' value = 'delivery'/>
+	Delivery
+</p>
+<table border="0" cellpadding="3">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script language="javascript">
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+  }
+  document.writeln(s);
+</script>
+</table>
+<p>Subtotal: 
+   $<input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $ <input type="text"  name='total' id="total" />
+</p>
+
+<input type = "button" value = "Submit Order" />
+
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script language="javascript">
+	var pickup = true;
+	var order = [0, 0, 0, 0, 0];
+	var subtotal = 0;
+	var tax = 0;
+	var total = 0;
+	$(document).ready(function() {
+		$("select[name=quan0]").change(function() {
+			order[0] = document.getElementsByName("quan0")[0].value;
+			document.getElementsByName("cost")[0].value = (order[0] * 4.50).toFixed(2);
+		});
+		$("select[name=quan1]").change(function() {
+			order[1] = document.getElementsByName("quan1")[0].value;
+			document.getElementsByName("cost")[1].value = (order[1] * 6.25).toFixed(2);
+		});
+		$("select[name=quan2]").change(function() {
+			order[2] = document.getElementsByName("quan2")[0].value;
+			document.getElementsByName("cost")[2].value = (order[2] * 5.25).toFixed(2);
+		});
+		$("select[name=quan3]").change(function() {
+			order[3] = document.getElementsByName("quan3")[0].value;
+			document.getElementsByName("cost")[3].value = (order[3] * 6.50).toFixed(2);
+		});
+		$("select[name=quan4]").change(function() {
+			order[4] = document.getElementsByName("quan4")[0].value;
+			document.getElementsByName("cost")[4].value = (order[4] * 2.35).toFixed(2);
+
+		});
+		$("select").change(function() {
+			subtotal = parseFloat((document.getElementsByName("quan0")[0].value * 4.50)) + parseFloat((document.getElementsByName("quan1")[0].value * 6.25)) + parseFloat((document.getElementsByName("quan2")[0].value * 5.25)) + parseFloat((document.getElementsByName("quan3")[0].value * 6.50)) + parseFloat((document.getElementsByName("quan4")[0].value * 2.35));
+
+			document.getElementsByName("subtotal")[0].value = subtotal.toFixed(2);
+
+			tax = subtotal * 0.0625;
+			document.getElementsByName("tax")[0].value = tax.toFixed(2);
+
+			total = subtotal + tax;
+			document.getElementsByName("total")[0].value = total.toFixed(2);
+		});
+
+		$("input[value=pickup").click(function() {
+			pickup = true;
+			document.getElementById("city").innerHTML = "";
+			document.getElementById("street").innerHTML = "";
+		});
+
+		$("input[value=delivery").click(function() {
+			pickup = false;
+			document.getElementById("city").innerHTML = "City*: <input type='text'  name='city' />";
+			document.getElementById("street").innerHTML = "Street*: <input type='text'  name='street' />";
+		});
+
+		$("input[value='Submit Order'").click(function() {
+			if(document.getElementsByName("lname")[0].value == "")
+				alert("Please enter your last name.");
+			else if(document.getElementsByName("phone")[0].value == "")
+				alert("Please enter your phone number.");
+			else if(document.getElementsByName("phone")[0].value.replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '').replace(/\s/g, '').length != 10)
+				// Remove all dashes, parentheses, and spaces from phone number
+				alert("Please enter a valid phone number.");
+			else if(!pickup && document.getElementsByName("street")[0].value == "")
+				alert("Please enter a street name.");
+			else if(!pickup && document.getElementsByName("city")[0].value == "")
+				alert("Please enter a city name.");
+			else if(order[0] == 0 && order[1] == 0 && order[2] == 0 && order[3] == 0 && order[4] == 0)
+				alert("Please order at least one item.");
+			else {
+				win = window.open();
+
+				win.document.write("Thank you for your order!<br><br>");
+				win.document.write("You ordered: <br>");
+				if(order[0] > 0) win.document.write(order[0] + " Chicken Chop Suey<br>");
+				if(order[1] > 0) win.document.write(order[1] + " Sweet and Sour Pork<br>");
+				if(order[2] > 0) win.document.write(order[2] + " Shrimp Lo Mein<br>");
+				if(order[3] > 0) win.document.write(order[3] + " Moo Shi Chicken<br>");
+				if(order[4] > 0) win.document.write(order[4] + " Fried Rice<br>");
+
+				win.document.write("<br>");
+
+				if(pickup)
+					win.document.write("Your order will be ready for pickup in 15 minutes.<br><br>");
+				else
+					win.document.write("Your order will be delivered in 30 minutes.<br><br>");
+
+				win.document.write("Your total is $" + total.toFixed(2) + ".<br><br>Enjoy!");
+			}
+		});
+	});
+</script>
+
+</body>
+</html>
